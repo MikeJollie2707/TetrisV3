@@ -2,8 +2,7 @@
 #define TETRISV3_TETROMINO_HPP
 
 #include <array>
-#include "util.hpp"
-#include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 
 using Array5x5 = std::array<std::array<int, 5>, 5>;
 
@@ -45,8 +44,10 @@ private:
 
     void setType(Tetromino::Type const& type);
 public:
+    /*
+    Get the type of the tetromino.
+    */
     Tetromino::Type const& getType() const;
-
     /*
     Return a const ref to 5 x 5 array represents the current "form" of the tetromino.
     Basically it returns tetromino[rotation_index].
@@ -78,16 +79,16 @@ public:
     */
     void moveRight();
     /*
+    Move the tetromino left.
+    This action is done regardless of the collision.
+    */
+    void moveLeft();
+    /*
     Move the tetromino up.
     This action is done regardless of the collision.
     This function should only be called to test possible movement.
     */
     void moveUp();
-    /*
-    Move the tetromino left.
-    This action is done regardless of the collision.
-    */
-    void moveLeft();
 
     /*
     Rotate the tetromino clockwise.
@@ -100,13 +101,13 @@ public:
     */
     void rotateLeft();
 
+    Tetromino() = default;
     /*
     Create a Tetromino.
 
     Param:
     - type: the Tetromino::Type you want it to be.
     */
-    Tetromino() = default;
     Tetromino(Tetromino::Type type);
     Tetromino(Tetromino const& obj);
 

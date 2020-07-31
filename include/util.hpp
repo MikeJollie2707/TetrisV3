@@ -1,3 +1,6 @@
+#ifndef TETRISV3_UTIL_HPP
+#define TETRISV3_UTIL_HPP
+
 #include <iostream> // Debug purpose
 
 enum Direction {
@@ -10,13 +13,4 @@ enum Direction {
     ROTATE_LEFT
 };
 
-// A relative safe way to delete a pointer.
-// Basically it'll delete the pointer and point to nullptr for you.
-// It won't delete a null pointer.
-template<typename T>
-void safe_delete(T* pointer) {
-    if (pointer != nullptr) {
-        delete pointer;
-        pointer = nullptr;
-    }
-}
+#endif

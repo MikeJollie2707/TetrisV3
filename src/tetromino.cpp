@@ -1,7 +1,11 @@
+#ifndef TETRISV3_TETROMINO_CPP
+#define TETRISV3_TETROMINO_CPP
+
 #include "tetromino.hpp"
 
 Tetromino::Tetromino(Tetromino::Type type) :
-type(type) {
+type(type) 
+{
     for (auto& i : tetromino)
         for (auto& j : i)
             for (auto& k : j)
@@ -69,15 +73,39 @@ type(type) {
     case Tetromino::Type::J: {
         /*
         0 0 0 0 0
+        0 1 1 0 0
+        0 0 1 0 0
+        0 0 1 0 0
+        0 0 0 0 0
+        */
+        tetromino[0][2][2] = 1;
+        tetromino[0][1][2] = 1;
+        tetromino[0][1][1] = 1;
+        tetromino[0][3][2] = 1;
+        
+        /*
+        0 0 0 0 0
+        0 0 0 1 0
+        0 1 1 1 0
+        0 0 0 0 0
+        0 0 0 0 0
+        */
+        tetromino[1][2][2] = 1;
+        tetromino[1][2][1] = 1;
+        tetromino[1][2][3] = 1;
+        tetromino[1][1][3] = 1;
+
+        /*
+        0 0 0 0 0
         0 0 1 0 0
         0 0 1 0 0
         0 0 1 1 0
         0 0 0 0 0
         */
-        tetromino[0][2][2] = 1;
-        tetromino[0][1][2] = 1;
-        tetromino[0][3][2] = 1;
-        tetromino[0][3][3] = 1;
+        tetromino[2][2][2] = 1;
+        tetromino[2][1][2] = 1;
+        tetromino[2][3][2] = 1;
+        tetromino[2][3][3] = 1;
 
         /*
         0 0 0 0 0
@@ -86,34 +114,10 @@ type(type) {
         0 1 0 0 0
         0 0 0 0 0
         */
-        tetromino[1][2][2] = 1;
-        tetromino[1][3][1] = 1;
-        tetromino[1][2][1] = 1;
-        tetromino[1][2][3] = 1;
-
-        /*
-        0 0 0 0 0
-        0 1 1 0 0
-        0 0 1 0 0
-        0 0 1 0 0
-        0 0 0 0 0
-        */
-        tetromino[2][2][2] = 1;
-        tetromino[2][1][2] = 1;
-        tetromino[2][1][1] = 1;
-        tetromino[2][3][2] = 1;
-
-        /*
-        0 0 0 0 0
-        0 0 0 1 0
-        0 1 1 1 0
-        0 0 0 0 0
-        0 0 0 0 0
-        */
         tetromino[3][2][2] = 1;
+        tetromino[3][3][1] = 1;
         tetromino[3][2][1] = 1;
         tetromino[3][2][3] = 1;
-        tetromino[3][1][3] = 1;
 
         break;
     }
@@ -325,48 +329,48 @@ type(type) {
         /*
         0 0 0 0 0
         0 0 1 0 0
-        0 0 1 1 0
+        0 1 1 0 0
         0 0 1 0 0
         0 0 0 0 0
         */
         tetromino[0][2][2] = 1;
         tetromino[0][1][2] = 1;
         tetromino[0][3][2] = 1;
-        tetromino[0][2][3] = 1;
+        tetromino[0][2][1] = 1;
 
         /*
         0 0 0 0 0
-        0 0 0 0 0
-        0 1 1 1 0
         0 0 1 0 0
+        0 1 1 1 0
+        0 0 0 0 0
         0 0 0 0 0
         */
         tetromino[1][2][2] = 1;
         tetromino[1][2][1] = 1;
         tetromino[1][2][3] = 1;
-        tetromino[1][3][2] = 1;
+        tetromino[1][1][2] = 1;
 
         /*
         0 0 0 0 0
         0 0 1 0 0
-        0 1 1 0 0
+        0 0 1 1 0
         0 0 1 0 0
         0 0 0 0 0
         */
         tetromino[2][2][2] = 1;
         tetromino[2][1][2] = 1;
-        tetromino[2][2][1] = 1;
+        tetromino[2][2][3] = 1;
         tetromino[2][3][2] = 1;
 
         /*
         0 0 0 0 0
-        0 0 1 0 0
-        0 1 1 1 0
         0 0 0 0 0
+        0 1 1 1 0
+        0 0 1 0 0
         0 0 0 0 0
         */
         tetromino[3][2][2] = 1;
-        tetromino[3][1][2] = 1;
+        tetromino[3][3][2] = 1;
         tetromino[3][2][1] = 1;
         tetromino[3][2][3] = 1;
 
@@ -384,29 +388,31 @@ type(obj.type),
 pos(obj.pos),
 rotation_index(obj.rotation_index)
 {
-
 }
+
 Tetromino& Tetromino::operator=(Tetromino const& obj) {
     tetromino = obj.tetromino;
     type = obj.type;
     pos = obj.pos;
     rotation_index = obj.rotation_index;
 }
-
-Tetromino::Type const& Tetromino::getType() const {
-    return type;
-}
-
-void Tetromino::setType(Tetromino::Type const& type) {
-    this->type = type;
-}
-
 bool operator==(Tetromino const& lhs, Tetromino const& rhs) {
     return (
         lhs.type == rhs.type &&
         lhs.pos == rhs.pos &&
         lhs.rotation_index == rhs.rotation_index
     );
+}
+
+Array5x5 const& Tetromino::getCurrentRotation() const {
+    return tetromino[rotation_index];
+}
+
+Tetromino::Type const& Tetromino::getType() const {
+    return type;
+}
+void Tetromino::setType(Tetromino::Type const& type) {
+    this->type = type;
 }
 
 void Tetromino::toDefaultPos() {
@@ -448,12 +454,12 @@ void Tetromino::toDefaultPos() {
     }
     }
 }
+sf::Vector2i const& Tetromino::getPos() const {
+    return pos;
+}
 void Tetromino::setPos(int const& x, int const& y) {
     pos.x = x; 
     pos.y = y;
-}
-sf::Vector2i const& Tetromino::getPos() const {
-    return pos;
 }
 
 void Tetromino::moveDown() {
@@ -473,17 +479,15 @@ void Tetromino::moveUp() {
     }
 }
 
-void Tetromino::rotateLeft() {
-    if (++rotation_index > 3) {
-        rotation_index = 0;
-    }
-}
 void Tetromino::rotateRight() {
     if (--rotation_index < 0) {
         rotation_index = 3;
     }
 }
-
-Array5x5 const& Tetromino::getCurrentRotation() const {
-    return tetromino[rotation_index];
+void Tetromino::rotateLeft() {
+    if (++rotation_index > 3) {
+        rotation_index = 0;
+    }
 }
+
+#endif

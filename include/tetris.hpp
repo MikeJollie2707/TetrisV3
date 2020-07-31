@@ -1,4 +1,8 @@
+#ifndef TETRISV3_TETRIS_HPP
+#define TETRISV3_TETRIS_HPP
+
 #include "tetromino.hpp"
+#include "util.hpp"
 
 #include <vector>
 #include <ctime>
@@ -19,7 +23,6 @@ protected:
     static const int wall_x = 2;
     static const int wall_y = 1;
     static const int space_y = 3;
-    static constexpr float outline = 1.0f;
 
     /*
     The game setting options.
@@ -41,38 +44,7 @@ protected:
      * The board also include walls and spare space above the playground.
      */
     std::array<std::array<Tile, size_y + wall_y + space_y>, size_x + wall_x> board;
-    /**
-     * Raw pointer to the current tetromino.
-     * 
-     * It is advised not to change this pointer except in
-     * the constructor (nullptr) and in run().
-     * 
-     * Typically, this pointer will be pointed to the next pointer,
-     * and it's responsible for deleting that memory when done.
-     */
-    //Tetromino* current;
-    /*
-    Raw pointer to the next tetromino.
-
-    It is advised to always bind this pointer with the function
-    genRandomTetromino() due to how it works.
-
-    Typically, you should never do `delete hint;` except in the destructor.
-    The pointer is responsible for allocating memory block, transfer that to
-    the current pointer, and is only deleted by the destructor.
-    */
-    Tetromino* next;
-    /*
-    Raw pointer to the "hinting" tetromino.
-
-    It is advised to either set this to nullptr (settings.hint = false), or
-    allocate a DEEP COPY of `current`.
-
-    Typically, this pointer will be deleted and allocated inside showHint() everytime
-    it's called, and can only explicitly delete inside run() (when current is deleted).
-    */
-    Tetromino* hint;
-    std::vector<Tetromino> pieces;
+    std::vector<Tetromino> tetrominoes;
     /*
     The game tick.
 
@@ -99,7 +71,9 @@ protected:
     Usually obtained using getTetrominoColor(next).
     */
     sf::Color next_color;
-    const int grid;
+    int grid;
+    int grid_offset;
+    float outline;
 
     sf::Clock render_clock;
     sf::Clock tick_clock;
@@ -112,12 +86,8 @@ protected:
     /*
     Return the color for the tetromino based on its type.
     */
-    sf::Color getTetrominoColor(Tetromino const* tetromino);
+    sf::Color getTetrominoColor(Tetromino const& tetromino);
 
-    /*
-    A check to see if the tetromino can move down or not.
-    */
-    bool isMovable(Tetromino* current);
     enum class CollideOptions {
         Wall,
         Piece,
@@ -126,32 +96,36 @@ protected:
     /*
     A check to see whether the tetromino collides with wall and/or piece.
     */
-    bool isCollide(Tetromino* tetromino, CollideOptions options = CollideOptions::All);
+    bool isCollide(Tetromino& tetromino, CollideOptions options = CollideOptions::All);
+    /*
+    A check to see if the tetromino can move down or not.
+    */
+    bool isMovable(Tetromino& current);
 
     /*
     Move the tetromino down with collision checking.
     */
-    void moveDown(Tetromino* tetromino);
+    void moveDown(Tetromino& tetromino);
     /*
     Move the tetromino right with collision checking.
     */
-    void moveRight(Tetromino* tetromino);
+    void moveRight(Tetromino& tetromino);
     /*
     Move the tetromino left with collision checking.
     */
-    void moveLeft(Tetromino* tetromino);
+    void moveLeft(Tetromino& tetromino);
     /*
     Move the tetromino up.
     */
-    void moveUp(Tetromino* tetromino);
+    void moveUp(Tetromino& tetromino);
     /*
     Rotate the tetromino counterclockwise with collision checking and wall kicking.
     */
-    void rotateLeft(Tetromino* tetromino);
+    void rotateLeft(Tetromino& tetromino);
     /*
     Rotate the tetromino clockwise with collision checking and wall kicking.
     */
-    void rotateRight(Tetromino* tetromino);
+    void rotateRight(Tetromino& tetromino);
 
     /*
     Update the board with placed tetromino.
@@ -166,31 +140,30 @@ protected:
     virtual void incScore(int lines);
 
     /*
-    Show the hint using the hint pointer.
-
-    It manually manages the hint pointer, so be caution
-    when override this.
+    Show the hint.
     */
     void updateHint();
-    /*
-    An abstract way to delete both the current pointer and
-    the hint pointer and set both to nullptr.
-    */
-    void cleanUpMemory();
 
-    // Debug
-
-    /*
-    Display the array to console.
-    */
-    void print();
     /*
     Draw to window.
     */
     void render();
-
     virtual void processEvent(sf::Event event);
+
+    // Debug
+    /*
+    Display the array to console.
+    */
+    void print();
 public:
+    Tetris& setDebug(bool enable_debug = false);
+    Tetris& setHint(bool enable_hint = true);
+    Tetris& setHardDrop(bool enable_quick_drop = true);
+    Tetris& setHold(bool enable_hold = false);
+    Tetris& setInitSpeed(float speed = 0.5f);
+    Tetris& setGrid(int grid = 40);
+    Tetris& setOutlineThickness(int outline = 1);
+
     /*
     A blocking function that run the game.
 
@@ -198,11 +171,6 @@ public:
     */
     virtual int run();
     
-    Tetris& setDebug(bool enable_debug = false);
-    Tetris& setHint(bool enable_hint = true);
-    Tetris& setHardDrop(bool enable_quick_drop = true);
-    Tetris& setHold(bool enable_hold = false);
-
     /*
     Create a Tetris instance that use the window to render.
 
@@ -239,59 +207,11 @@ public:
     int calcValue();
     int countHoles();
     int find_max(std::vector<Tetromino>& pe);
-    void logic() {
-        height = calculateHeight();
-        int current_height;
-        int max_index = 0;
-        for (int i = 0; i < board.size(); ++i) {
-            // spawn tetris
-            while (current_height > height && !isMovable(hint)) {
-                moveDown(hint);
-            }
-
-            
-            
-        }
-    }
-
-    void recursion(Tetromino* copy_hint) {
-        while (isMovable(hint)) {
-            int move = rand() % 4;
-            switch (move) {
-            case 0: {
-                moveLeft(hint);
-                break;
-            }
-            case 1: {
-                moveRight(hint);
-                break;
-            }
-            case 2: {
-                rotateLeft(hint);
-                break;
-            }
-            case 3: {
-                rotateRight(hint);
-                break;
-            }
-            }
-
-            moveDown(hint);
-        }
-
-        auto result = std::find_if(possible_ends.begin(), possible_ends.end(), [&](Tetromino& p) {
-            return (*hint) == p;
-        });
-
-        if (result == possible_ends.end()) {
-            possible_ends.push_back(*hint);
-        }
-        else {
-            return;
-        }
-    }
+    void logic();
     
     
 
     TetrisAI(sf::RenderWindow& window);
 };
+
+#endif
