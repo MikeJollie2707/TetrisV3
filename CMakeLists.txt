@@ -9,7 +9,7 @@ add_executable(
     src/main.cpp
     src/tetromino.cpp
     src/tetris.cpp
-    src/tetrisAI.cpp
+    #src/tetrisAI.cpp
 )
 
 # Link SFML
