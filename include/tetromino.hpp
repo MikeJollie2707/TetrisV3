@@ -43,6 +43,8 @@ private:
     Tetromino::Type type;
 
     void setType(Tetromino::Type const& type);
+
+    bool valid;
 public:
     /*
     Get the type of the tetromino.
@@ -53,10 +55,12 @@ public:
     Basically it returns tetromino[rotation_index].
     */
     Array5x5 const& getCurrentRotation() const;
+    void toDefaultRotation();
     /*
     Return the pivot's position relative to the board.
     */
     sf::Vector2i const& getPos() const;
+    bool isValid() const;
 
     /*
     Set the pivot's position.
@@ -101,7 +105,7 @@ public:
     */
     void rotateLeft();
 
-    Tetromino() = default;
+    Tetromino();
     /*
     Create a Tetromino.
 

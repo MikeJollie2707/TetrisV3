@@ -3,6 +3,11 @@
 
 #include "tetromino.hpp"
 
+Tetromino::Tetromino() : 
+valid(false)
+{
+}
+
 Tetromino::Tetromino(Tetromino::Type type) :
 type(type) 
 {
@@ -381,12 +386,14 @@ type(type)
     toDefaultPos();
 
     rotation_index = 0;
+    valid = true;
 }
 Tetromino::Tetromino(Tetromino const& obj) :
 tetromino(obj.tetromino),
 type(obj.type),
 pos(obj.pos),
-rotation_index(obj.rotation_index)
+rotation_index(obj.rotation_index),
+valid(obj.valid)
 {
 }
 
@@ -395,6 +402,7 @@ Tetromino& Tetromino::operator=(Tetromino const& obj) {
     type = obj.type;
     pos = obj.pos;
     rotation_index = obj.rotation_index;
+    valid = obj.valid;
 }
 bool operator==(Tetromino const& lhs, Tetromino const& rhs) {
     return (
@@ -406,6 +414,9 @@ bool operator==(Tetromino const& lhs, Tetromino const& rhs) {
 
 Array5x5 const& Tetromino::getCurrentRotation() const {
     return tetromino[rotation_index];
+}
+void Tetromino::toDefaultRotation() {
+    rotation_index = 0;
 }
 
 Tetromino::Type const& Tetromino::getType() const {
@@ -460,6 +471,10 @@ sf::Vector2i const& Tetromino::getPos() const {
 void Tetromino::setPos(int const& x, int const& y) {
     pos.x = x; 
     pos.y = y;
+}
+
+bool Tetromino::isValid() const {
+    return valid;
 }
 
 void Tetromino::moveDown() {
