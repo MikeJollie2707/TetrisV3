@@ -5,11 +5,13 @@
 #include "util.hpp"
 
 #include <vector>
+#include <stack>
 #include <ctime>
 #include <stdexcept>
 #include <algorithm>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 struct Tile {
     int value;
@@ -44,6 +46,12 @@ protected:
      * The board also include walls and spare space above the playground.
      */
     std::array<std::array<Tile, size_y + wall_y + space_y>, size_x + wall_x> board;
+    /*
+    Store all the tetrominoes you use in this class.
+
+    Typically, tetrominoes[0] is the current, tetrominoes[1] is the hint, tetrominoes[2] is the hold,
+    tetrominoes[3+] is next.
+    */
     std::vector<Tetromino> tetrominoes;
     /*
     The game tick.
@@ -53,11 +61,20 @@ protected:
     float tick;
     int score;
     /*
+    Act as a counter to the current hold action.
+
+    When the user decides to hold a piece, this counter will increase, and as long as it's above 0,
+    it cannot perform 0 anymore. The only way to reset it is in run().
+    */
+    int hold_lock;
+    /*
     A check to see if the current tetromino can move down or not.
     */
     bool movable;
     bool is_hard_drop;
     bool is_pause;
+
+
 
     sf::RenderWindow& window;
     sf::RectangleShape shape;
@@ -71,6 +88,8 @@ protected:
     Usually obtained using getTetrominoColor(next).
     */
     sf::Color next_color;
+    
+    sf::Color hold_color;
     int grid;
     int grid_offset;
     float outline;
@@ -78,6 +97,10 @@ protected:
     sf::Clock render_clock;
     sf::Clock tick_clock;
     sf::Time dt = sf::seconds(1.0f / 60.0f);
+
+    sf::Sound sound;
+    sf::SoundBuffer buffer;
+    sf::Music theme;
 
     /*
     Generate a random number from 0-6 based on Tetris NES algorithm.
@@ -150,6 +173,9 @@ protected:
     void render();
     virtual void processEvent(sf::Event event);
 
+    void playSound(std::string const& sound);
+    void playMusic(std::string const& music);
+
     // Debug
     /*
     Display the array to console.
@@ -174,7 +200,7 @@ public:
     /*
     Create a Tetris instance that use the window to render.
 
-    Also allocate memory for the next pointer.
+    It needs a minimum of 
     */
     Tetris(sf::RenderWindow& window);
     /*
