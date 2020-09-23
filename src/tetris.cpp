@@ -102,6 +102,8 @@ sf::Color Tetris::getTetrominoColor(Tetromino const& tetromino) {
     case Tetromino::Type::T: {
         return sf::Color(142, 68, 173);
     }
+    default:
+        return sf::Color(0, 0, 0);
     }
 }
 
@@ -602,16 +604,19 @@ Tetris& Tetris::setHold(bool is_hold) {
 }
 Tetris& Tetris::setInitSpeed(float speed) {
     tick = speed;
+    return *this;
 }
 Tetris& Tetris::setGrid(int grid) {
     if (grid * (size_y + wall_y) >= window.getSize().y && grid * (size_x + wall_x + 6) >= window.getSize().x)
         this->grid = grid;
     else
         this->grid = window.getSize().y / (size_y + wall_y);
+    return *this;
 }
 Tetris& Tetris::setOutlineThickness(int outline) {
     this->outline = outline;
     grid_offset = outline * 2;
+    return *this;
 }
 
 int Tetris::run() {

@@ -13,7 +13,7 @@ add_executable(
 )
 
 # Link SFML
-set(SFML_DIR ../../../SFML/SFML-2.5.1/build)
+#set(SFML_DIR ../../SFML/SFML-2.5.1/build)
 find_package(SFML 2.5.1 COMPONENTS graphics audio REQUIRED)
 target_link_libraries(tetris
     sfml-graphics 
