@@ -4,7 +4,7 @@ Previous versions are not well-coded for extensive uses, so this version attempt
 
 ## Demo
 
-![demo](demo.mp4)
+![demo](demo.gif)
 
 ## Dependencies
 
@@ -38,6 +38,16 @@ cmake --build build
 ```
 
 Alternatively, if you use CMakeTools extension in VSCode, you can use it to build.
+
+## Controls
+
+- P: pause/unpause
+- C: hold piece
+- A/D: move left/right
+- Space: fast drop
+- ArrowLeft/ArrowRight: rotate left/right
+
+The game starts out in a paused state. Press `P` to start.
 
 ## TODO
 
