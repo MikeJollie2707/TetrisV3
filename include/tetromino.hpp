@@ -21,11 +21,12 @@ public:
         S,
         T
     };
+
 private:
     /*
     The array representation of a tetromino.
     The size it occupies is 4 * 5 * 5 * sizeof(int).
-    
+
     See also the note in the definition of the constructor.
     */
     std::array<Array5x5, 4> tetromino;
@@ -33,18 +34,19 @@ private:
     The position of the center piece of the tetromino.
     The position is relative to the tetris board's position.
     */
-    sf::Vector2i pos;
+    sf::Vector2i            pos;
     /*
     The rotation index used to determine what rotation is the tetromino on.
     Basically, it's the index of the tetromino array.
     */
-    int rotation_index;
+    int                     rotation_index;
 
     Tetromino::Type type;
 
     void setType(Tetromino::Type const& type);
 
     bool valid;
+
 public:
     /*
     Get the type of the tetromino.
@@ -54,13 +56,13 @@ public:
     Return a const ref to 5 x 5 array represents the current "form" of the tetromino.
     Basically it returns tetromino[rotation_index].
     */
-    Array5x5 const& getCurrentRotation() const;
-    void toDefaultRotation();
+    Array5x5 const&        getCurrentRotation() const;
+    void                   toDefaultRotation();
     /*
     Return the pivot's position relative to the board.
     */
-    sf::Vector2i const& getPos() const;
-    bool isValid() const;
+    sf::Vector2i const&    getPos() const;
+    bool                   isValid() const;
 
     /*
     Set the pivot's position.
@@ -115,7 +117,7 @@ public:
     Tetromino(Tetromino::Type type);
     Tetromino(Tetromino const& obj);
 
-    Tetromino& operator=(Tetromino const& obj);
+    Tetromino&  operator=(Tetromino const& obj);
     friend bool operator==(Tetromino const& lhs, Tetromino const& rhs);
 };
 

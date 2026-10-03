@@ -7,13 +7,13 @@ int main()
     try {
         Tetris tetris(window);
         tetris.setInitSpeed(0.5f)
-                .setGrid(30)
-                .setOutlineThickness(3);
+            .setGrid(30)
+            .setOutlineThickness(3);
 
         tetris.setDebug(false)
-                .setHardDrop(true)
-                .setHint(true)
-                .setHold(true);
+            .setHardDrop(true)
+            .setHint(true)
+            .setHold(true);
 
         int final_score = tetris.run();
         std::cout << "Final score: " << final_score << '\n';

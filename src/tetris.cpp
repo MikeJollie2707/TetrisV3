@@ -2,37 +2,37 @@
 #define TETRISV3_TETRIS_CPP
 
 #include "tetris.hpp"
+#include <iostream>
+#include <optional>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
-#include <optional>
-#include <iostream>
 
 Tetris::Tetris(sf::RenderWindow& window) :
-window(window),
-grid(40),
-grid_offset(2),
-outline(grid_offset / 2),
-hold_lock(0),
-movable(false),
-is_pause(true),
-score(0),
-tick(1.0f),
-rng(rd())
+    window(window),
+    grid(40),
+    grid_offset(2),
+    outline(grid_offset / 2),
+    hold_lock(0),
+    movable(false),
+    is_pause(true),
+    score(0),
+    tick(1.0f),
+    rng(rd())
 {
     // srand(time(NULL));
-    
+
 
     // Init board
-    for (auto& i : board)
-        for (auto& j : i) {
+    for (auto& i: board)
+        for (auto& j: i) {
             j.value = 0;
             j.color = sf::Color::Transparent;
         }
 
     // Init walls
     for (int j = 0; j < board[0].size(); ++j) {
-        board[0][j].value = -1;
-        board[0][j].color = sf::Color::White;
+        board[0][j].value          = -1;
+        board[0][j].color          = sf::Color::White;
         board[size_x + 1][j].value = -1;
         board[size_x + 1][j].color = sf::Color::White;
     }
@@ -67,11 +67,13 @@ rng(rd())
     setHold(true);
     setHint(true);
 }
+
 Tetris::~Tetris()
 {
 }
 
-int Tetris::genRandomTetromino() {
+int Tetris::genRandomTetromino()
+{
     // We use NES Tetris random algorithm here.
     // Basically roll an 8-sided dice, 1-7 being the 7 pieces,
     // and 8 means reroll.
@@ -81,17 +83,19 @@ int Tetris::genRandomTetromino() {
     std::uniform_int_distribution<int> dice8(0, 7);
     std::uniform_int_distribution<int> dice7(0, 6);
 
-    //int value = rand() % 8;
+    // int value = rand() % 8;
     int value = dice8(this->rng);
 
     if (static_cast<int>(tetrominoes[0].getType()) == value || value == 7) {
-        //value = rand() % 7;
+        // value = rand() % 7;
         value = dice7(this->rng);
     }
 
     return value;
 }
-sf::Color Tetris::getTetrominoColor(Tetromino const& tetromino) {
+
+sf::Color Tetris::getTetrominoColor(Tetromino const& tetromino)
+{
     switch (tetromino.getType()) {
     case Tetromino::Type::I: {
         return sf::Color::Cyan;
@@ -124,20 +128,21 @@ Algorithm: iterate through all pieces in the tetromino and check
 if any of them are either out of bound, or its position on the board
 is wall/piece (depending on the option).
 */
-bool Tetris::isCollide(Tetromino& tetromino, CollideOptions options) {
+bool Tetris::isCollide(Tetromino& tetromino, CollideOptions options)
+{
     Array5x5 const& pieces = tetromino.getCurrentRotation();
     for (int i = 0; i < pieces.size(); ++i) {
         for (int j = 0; j < pieces[i].size(); ++j) {
             if (pieces[i][j] == 1) {
                 sf::Vector2i const& current_pos = tetromino.getPos();
-                int x = current_pos.x + (i - 2);
-                int y = current_pos.y + (j - 2);
+                int                 x           = current_pos.x + (i - 2);
+                int                 y           = current_pos.y + (j - 2);
                 if (
                     x < 0 || x >= board.size() ||
                     y < 0 || y >= board[0].size()
                 )
                     return true;
-                
+
                 int temp = board[x][y].value;
                 if (options == CollideOptions::Piece && temp == 1) {
                     return true;
@@ -153,7 +158,9 @@ bool Tetris::isCollide(Tetromino& tetromino, CollideOptions options) {
     }
     return false;
 }
-bool Tetris::isMovable(Tetromino& tetromino) {
+
+bool Tetris::isMovable(Tetromino& tetromino)
+{
     bool result = false;
 
     moveDown(tetromino);
@@ -162,25 +169,32 @@ bool Tetris::isMovable(Tetromino& tetromino) {
     }
     else
         result = true;
-    
+
     moveUp(tetromino);
     return result;
 }
 
-void Tetris::moveDown(Tetromino& tetromino) {
+void Tetris::moveDown(Tetromino& tetromino)
+{
     tetromino.moveDown();
 }
-void Tetris::moveRight(Tetromino& tetromino) {
+
+void Tetris::moveRight(Tetromino& tetromino)
+{
     tetromino.moveRight();
     if (isCollide(tetromino))
         tetromino.moveLeft();
 }
-void Tetris::moveLeft(Tetromino& tetromino) {
+
+void Tetris::moveLeft(Tetromino& tetromino)
+{
     tetromino.moveLeft();
     if (isCollide(tetromino))
         tetromino.moveRight();
 }
-void Tetris::moveUp(Tetromino& tetromino) {
+
+void Tetris::moveUp(Tetromino& tetromino)
+{
     tetromino.moveUp();
 }
 
@@ -192,15 +206,16 @@ the piece isn't collide with any piece AND isn't collide with any wall,
 then the rotation and position will be at that point. Otherwise,
 it fails to rotate.
 */
-void Tetris::rotateLeft(Tetromino& tetromino) {
+void Tetris::rotateLeft(Tetromino& tetromino)
+{
     tetromino.rotateLeft();
 
     bool result = isCollide(tetromino);
-    int move = 0;
-    
+    int  move   = 0;
+
     if (!result)
         return;
-    
+
     // Avoid piece kicking
     if (isCollide(tetromino, CollideOptions::Wall)) {
         bool fail = false;
@@ -222,7 +237,7 @@ void Tetris::rotateLeft(Tetromino& tetromino) {
 
         if (!fail)
             return;
-        
+
         move = 0;
         while (move < 3) {
             tetromino.moveLeft();
@@ -232,7 +247,7 @@ void Tetris::rotateLeft(Tetromino& tetromino) {
                 // Move back to old position
                 for (int i = 0; i < move; ++i)
                     tetromino.moveRight();
-                
+
                 // At this point, rotation failed so rotate back to old form.
                 tetromino.rotateRight();
                 fail = true;
@@ -247,12 +262,14 @@ void Tetris::rotateLeft(Tetromino& tetromino) {
         tetromino.rotateRight();
     }
 }
-void Tetris::rotateRight(Tetromino& tetromino) {
+
+void Tetris::rotateRight(Tetromino& tetromino)
+{
     tetromino.rotateRight();
 
     bool result = isCollide(tetromino);
-    int move = 0;
-    
+    int  move   = 0;
+
     if (!result)
         return;
 
@@ -276,7 +293,7 @@ void Tetris::rotateRight(Tetromino& tetromino) {
 
         if (!fail)
             return;
-        
+
         move = 0;
         while (move < 3) {
             tetromino.moveRight();
@@ -286,7 +303,7 @@ void Tetris::rotateRight(Tetromino& tetromino) {
                 // Move back to old position
                 for (int i = 0; i < move; ++i)
                     tetromino.moveLeft();
-                
+
                 // At this point, rotation failed so rotate back to old form.
                 tetromino.rotateLeft();
                 fail = true;
@@ -302,24 +319,27 @@ void Tetris::rotateRight(Tetromino& tetromino) {
     }
 }
 
-void Tetris::updateBoard() {
+void Tetris::updateBoard()
+{
     if (!isMovable(tetrominoes[0])) {
         Array5x5 const& pieces = tetrominoes[0].getCurrentRotation();
         for (int i = 0; i < pieces.size(); ++i) {
             for (int j = 0; j < pieces[i].size(); ++j) {
                 if (pieces[i][j] == 1) {
                     sf::Vector2i const& current_pos = tetrominoes[0].getPos();
-                    int x = current_pos.x + (i - 2);
-                    int y = current_pos.y + (j - 2);
-                    board[x][y].value = 1;
-                    board[x][y].color = current_color;
+                    int                 x           = current_pos.x + (i - 2);
+                    int                 y           = current_pos.y + (j - 2);
+                    board[x][y].value               = 1;
+                    board[x][y].color               = current_color;
                 }
             }
         }
     }
 }
-int Tetris::clearLines() {
-    int rows[4]; // maximum clear lines in one go is 4
+
+int Tetris::clearLines()
+{
+    int rows[4];  // maximum clear lines in one go is 4
     int index = 0;
 
     for (int b_col = 0; b_col < board[0].size() - wall_y; ++b_col) {
@@ -346,11 +366,15 @@ int Tetris::clearLines() {
 
     return index;
 }
-void Tetris::incSpeed(int lines) {
+
+void Tetris::incSpeed(int lines)
+{
     if (lines > 0 && tick > 0.1)
         tick -= 0.0005;
 }
-void Tetris::incScore(int lines) {
+
+void Tetris::incScore(int lines)
+{
     if (lines > 0 && lines < 4) {
         playSound("line.wav");
 
@@ -365,7 +389,8 @@ void Tetris::incScore(int lines) {
     }
 }
 
-void Tetris::updateHint() {
+void Tetris::updateHint()
+{
     if (settings.hint) {
         tetrominoes[1] = tetrominoes[0];
 
@@ -375,7 +400,8 @@ void Tetris::updateHint() {
     }
 }
 
-void Tetris::render() {
+void Tetris::render()
+{
     window.clear();
 
     // Draw the entire board
@@ -387,10 +413,7 @@ void Tetris::render() {
         for (int j = space_y; j < board[i].size(); ++j) {
             {
                 shape.setFillColor(board[i][j].color);
-                shape.setPosition(sf::Vector2f(
-                    (i) * grid,
-                    (j - space_y) * grid
-                ));
+                shape.setPosition(sf::Vector2f((i) *grid, (j - space_y) * grid));
                 window.draw(shape);
             }
         }
@@ -404,10 +427,7 @@ void Tetris::render() {
         for (int j = 0; j < render_next[i].size(); ++j) {
             if (render_next[i][j] == 1) {
                 sf::Vector2i const& current_pos = tetrominoes[3].getPos();
-                shape.setPosition(sf::Vector2f(
-                    (current_pos.x + (i - 2)) * grid,
-                    (current_pos.y + (j - 2)) * grid
-                ));
+                shape.setPosition(sf::Vector2f((current_pos.x + (i - 2)) * grid, (current_pos.y + (j - 2)) * grid));
                 window.draw(shape);
             }
         }
@@ -421,10 +441,7 @@ void Tetris::render() {
             for (int j = 0; j < render_hold[i].size(); ++j) {
                 if (render_hold[i][j] == 1) {
                     sf::Vector2i const& current_pos = tetrominoes[2].getPos();
-                    shape.setPosition(sf::Vector2f(
-                        (current_pos.x + (i - 2)) * grid,
-                        (current_pos.y + (j - 2)) * grid
-                    ));
+                    shape.setPosition(sf::Vector2f((current_pos.x + (i - 2)) * grid, (current_pos.y + (j - 2)) * grid));
                     window.draw(shape);
                 }
             }
@@ -442,10 +459,7 @@ void Tetris::render() {
             for (int j = 0; j < render_hint[i].size(); ++j) {
                 if (render_hint[i][j] == 1) {
                     sf::Vector2i const& current_pos = tetrominoes[1].getPos();
-                    shape.setPosition(sf::Vector2f(
-                        (current_pos.x + (i - 2)) * grid,
-                        (current_pos.y + (j - 2) - space_y) * grid
-                    ));
+                    shape.setPosition(sf::Vector2f((current_pos.x + (i - 2)) * grid, (current_pos.y + (j - 2) - space_y) * grid));
                     window.draw(shape);
                 }
             }
@@ -456,24 +470,23 @@ void Tetris::render() {
     shape.setFillColor(current_color);
     shape.setOutlineColor(sf::Color(52, 73, 64));
     shape.setOutlineThickness(outline);
-    
+
     Array5x5 const& render = tetrominoes[0].getCurrentRotation();
     for (int i = 0; i < render.size(); ++i) {
         for (int j = 0; j < render[i].size(); ++j) {
             if (render[i][j] == 1) {
                 sf::Vector2i const& current_pos = tetrominoes[0].getPos();
-                shape.setPosition(sf::Vector2f(
-                    (current_pos.x + (i - 2)) * grid,
-                    (current_pos.y + (j - 2) - space_y) * grid
-                ));
+                shape.setPosition(sf::Vector2f((current_pos.x + (i - 2)) * grid, (current_pos.y + (j - 2) - space_y) * grid));
                 window.draw(shape);
             }
         }
     }
-    
+
     window.display();
 }
-void Tetris::processEvent(sf::Event event) {
+
+void Tetris::processEvent(sf::Event event)
+{
     if (event.is<sf::Event::Closed>()) {
         window.close();
         movable = false;
@@ -511,7 +524,7 @@ void Tetris::processEvent(sf::Event event) {
                 while (isMovable(tetrominoes[0]))
                     moveDown(tetrominoes[0]);
                 is_hard_drop = true;
-                movable = false;
+                movable      = false;
             }
             break;
         }
@@ -527,7 +540,7 @@ void Tetris::processEvent(sf::Event event) {
                     hold = move(current)
                     movable = false
                 */
-                
+
                 if (tetrominoes[2].isValid()) {
                     std::swap(tetrominoes[0], tetrominoes[2]);
 
@@ -537,7 +550,7 @@ void Tetris::processEvent(sf::Event event) {
                     updateHint();
 
                     current_color = getTetrominoColor(tetrominoes[0]);
-                    hold_color = getTetrominoColor(tetrominoes[2]);
+                    hold_color    = getTetrominoColor(tetrominoes[2]);
                 }
                 else {
                     tetrominoes[2] = std::move(tetrominoes[0]);
@@ -545,7 +558,7 @@ void Tetris::processEvent(sf::Event event) {
                     tetrominoes[2].toDefaultRotation();
 
                     hold_color = getTetrominoColor(tetrominoes[2]);
-                    movable = false;
+                    movable    = false;
                 }
 
                 hold_lock++;
@@ -557,9 +570,8 @@ void Tetris::processEvent(sf::Event event) {
             break;
         }
         default: {
-            break; 
+            break;
         }
-        
         }
 
         // We update hint every input from player.
@@ -567,7 +579,8 @@ void Tetris::processEvent(sf::Event event) {
     }
 }
 
-void Tetris::playSound(std::string const& sound_name) {
+void Tetris::playSound(std::string const& sound_name)
+{
     if (!buffer.loadFromFile("./music/" + sound_name)) {
         std::cerr << "Cannot load from " + sound_name;
     }
@@ -581,7 +594,9 @@ void Tetris::playSound(std::string const& sound_name) {
         sound->play();
     }
 }
-void Tetris::playMusic(std::string const& music_name) {
+
+void Tetris::playMusic(std::string const& music_name)
+{
     if (!theme.openFromFile("./music/" + music_name)) {
         std::cerr << "Cannot load from " + music_name;
     }
@@ -591,9 +606,10 @@ void Tetris::playMusic(std::string const& music_name) {
     }
 }
 
-void Tetris::print() {
-    for (auto const& i : board) {
-        for (auto const& j : i) {
+void Tetris::print()
+{
+    for (auto const& i: board) {
+        for (auto const& j: i) {
             std::cout << j.value << ' ';
         }
         std::cout << '\n';
@@ -602,47 +618,60 @@ void Tetris::print() {
     std::cout << "Debug: " << (int) settings.debug << '\n';
 }
 
-Tetris& Tetris::setDebug(bool is_debug) {
+Tetris& Tetris::setDebug(bool is_debug)
+{
     settings.debug = is_debug;
     return *this;
 }
-Tetris& Tetris::setHardDrop(bool is_hard_drop) {
+
+Tetris& Tetris::setHardDrop(bool is_hard_drop)
+{
     settings.hard_drop = is_hard_drop;
     return *this;
 }
-Tetris& Tetris::setHint(bool is_hint) {
+
+Tetris& Tetris::setHint(bool is_hint)
+{
     settings.hint = is_hint;
     return *this;
 }
-Tetris& Tetris::setHold(bool is_hold) {
+
+Tetris& Tetris::setHold(bool is_hold)
+{
     settings.hold = is_hold;
     return *this;
 }
-Tetris& Tetris::setInitSpeed(float speed) {
+
+Tetris& Tetris::setInitSpeed(float speed)
+{
     tick = speed;
     return *this;
 }
-Tetris& Tetris::setGrid(int grid) {
+
+Tetris& Tetris::setGrid(int grid)
+{
     if (grid * (size_y + wall_y) >= window.getSize().y && grid * (size_x + wall_x + 6) >= window.getSize().x)
         this->grid = grid;
     else
         this->grid = window.getSize().y / (size_y + wall_y);
     return *this;
 }
-Tetris& Tetris::setOutlineThickness(int outline) {
+
+Tetris& Tetris::setOutlineThickness(int outline)
+{
     this->outline = outline;
-    grid_offset = outline * 2;
+    grid_offset   = outline * 2;
     return *this;
 }
 
-int Tetris::run() {
+int Tetris::run()
+{
     playMusic("Tetris.ogg");
 
     while (window.isOpen()) {
         sf::Time elapsed = render_clock.getElapsedTime();
 
-        if (!movable)
-        {
+        if (!movable) {
             tetrominoes[0] = std::move(tetrominoes[3]);
             tetrominoes[0].toDefaultPos();
 
@@ -660,7 +689,7 @@ int Tetris::run() {
             tetrominoes[3].setPos(14, 3);
 
             current_color = next_color;
-            next_color = getTetrominoColor(tetrominoes[3]);
+            next_color    = getTetrominoColor(tetrominoes[3]);
 
             movable = true;
         }
@@ -673,7 +702,7 @@ int Tetris::run() {
                 processEvent(event.value());
             }
 
-            elapsed = render_clock.getElapsedTime();    
+            elapsed = render_clock.getElapsedTime();
         }
 
         if (tick_clock.getElapsedTime().asSeconds() >= tick || is_hard_drop) {

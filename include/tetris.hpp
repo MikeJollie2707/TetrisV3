@@ -3,35 +3,35 @@
 
 #include "tetromino.hpp"
 
-#include <optional>
-#include <vector>
 #include <ctime>
+#include <optional>
 #include <random>
+#include <vector>
 
-#include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 
 struct Tile {
-    int value;
+    int       value;
     sf::Color color;
 };
 
 class Tetris {
 protected:
-    static const int size_x = 10;
-    static const int size_y = 20;
-    static const int wall_x = 2;
-    static const int wall_y = 1;
+    static const int size_x  = 10;
+    static const int size_y  = 20;
+    static const int wall_x  = 2;
+    static const int wall_y  = 1;
     static const int space_y = 3;
 
     /*
     The game setting options.
     */
     struct {
-        bool debug = false;
-        bool hold = false;
+        bool debug     = false;
+        bool hold      = false;
         bool hard_drop = true;
-        bool hint = true;
+        bool hint      = true;
 
     } settings;
 
@@ -40,10 +40,11 @@ protected:
      *
      * The data saved in this board is inversed with the actual position on screen,
      * meaning that board[x][y] will mean the piece at (x * grid; y * grid).
-     * 
+     *
      * The board also include walls and spare space above the playground.
      */
     std::array<std::array<Tile, size_y + wall_y + space_y>, size_x + wall_x> board;
+
     /*
     Store all the tetrominoes you use in this class.
 
@@ -53,60 +54,60 @@ protected:
     std::vector<Tetromino> tetrominoes;
 
     std::random_device rd;
-    std::mt19937 rng;
+    std::mt19937       rng;
     /*
     The game tick.
 
     Basically this is the seconds before the tetromino moves down.
     */
-    float tick;
-    int score;
+    float              tick;
+    int                score;
     /*
     Act as a counter to the current hold action.
 
     When the user decides to hold a piece, this counter will increase, and as long as it's above 0,
     it cannot perform 0 anymore. The only way to reset it is in run().
     */
-    int hold_lock;
+    int                hold_lock;
     /*
     A check to see if the current tetromino can move down or not.
     */
-    bool movable;
-    bool is_hard_drop;
-    bool is_pause;
+    bool               movable;
+    bool               is_hard_drop;
+    bool               is_pause;
 
 
 
-    sf::RenderWindow& window;
+    sf::RenderWindow&  window;
     sf::RectangleShape shape;
     /*
     The color of the current tetromino.
     Usually obtained using getTetrominoColor(current).
     */
-    sf::Color current_color;
+    sf::Color          current_color;
     /*
     The color of the next tetromino.
     Usually obtained using getTetrominoColor(next).
     */
-    sf::Color next_color;
-    
+    sf::Color          next_color;
+
     sf::Color hold_color;
-    int grid;
-    int grid_offset;
-    float outline;
+    int       grid;
+    int       grid_offset;
+    float     outline;
 
     sf::Clock render_clock;
     sf::Clock tick_clock;
-    sf::Time dt = sf::seconds(1.0f / 60.0f);
+    sf::Time  dt = sf::seconds(1.0f / 60.0f);
 
     std::optional<sf::Sound> sound;
-    sf::SoundBuffer buffer;
-    sf::Music theme;
+    sf::SoundBuffer          buffer;
+    sf::Music                theme;
 
     /*
     Generate a random number from 0-6 based on Tetris NES algorithm.
     */
-    int genRandomTetromino();
+    int       genRandomTetromino();
     /*
     Return the color for the tetromino based on its type.
     */
@@ -154,13 +155,13 @@ protected:
     /*
     Update the board with placed tetromino.
     */
-    void updateBoard();
+    void         updateBoard();
     /*
     Clear all the full lines.
     Also increases tick speed.
     */
-    int clearLines();
-    void incSpeed(int lines);
+    int          clearLines();
+    void         incSpeed(int lines);
     virtual void incScore(int lines);
 
     /*
@@ -171,7 +172,7 @@ protected:
     /*
     Draw to window.
     */
-    void render();
+    void         render();
     virtual void processEvent(sf::Event event);
 
     void playSound(std::string const& sound);
@@ -182,6 +183,7 @@ protected:
     Display the array to console.
     */
     void print();
+
 public:
     Tetris& setDebug(bool enable_debug = false);
     Tetris& setHint(bool enable_hint = true);
@@ -197,11 +199,11 @@ public:
     Press ESC or close the window to exit this function.
     */
     virtual int run();
-    
+
     /*
     Create a Tetris instance that use the window to render.
 
-    It needs a minimum of 
+    It needs a minimum of
     */
     Tetris(sf::RenderWindow& window);
     /*
@@ -221,22 +223,22 @@ Then we rank, based on:
 - Avoid stacking up too high (3 should be the max).
 
 */
-class TetrisAI : public Tetris {
+class TetrisAI: public Tetris {
 public:
-    int ai_score;
-    int height;
+    int                    ai_score;
+    int                    height;
     std::vector<Tetromino> possible_ends;
 
-    int run();
+    int  run();
     void incScore(int lines);
     void processEvent(sf::Event event);
-    int calculateHeight();
-    int calcValue();
-    int countHoles();
-    int find_max(std::vector<Tetromino>& pe);
+    int  calculateHeight();
+    int  calcValue();
+    int  countHoles();
+    int  find_max(std::vector<Tetromino>& pe);
     void logic();
-    
-    
+
+
 
     TetrisAI(sf::RenderWindow& window);
 };

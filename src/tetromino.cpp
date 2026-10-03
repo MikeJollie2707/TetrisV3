@@ -3,17 +3,17 @@
 
 #include "tetromino.hpp"
 
-Tetromino::Tetromino() : 
-valid(false)
+Tetromino::Tetromino() :
+    valid(false)
 {
 }
 
 Tetromino::Tetromino(Tetromino::Type type) :
-type(type) 
+    type(type)
 {
-    for (auto& i : tetromino)
-        for (auto& j : i)
-            for (auto& k : j)
+    for (auto& i: tetromino)
+        for (auto& j: i)
+            for (auto& k: j)
                 k = 0;
     /*
     The following comments are there
@@ -56,24 +56,24 @@ type(type)
         0 0 1 0 0
         0 0 0 0 0
         */
-       tetromino[2][2][2] = 1;
-       tetromino[2][0][2] = 1;
-       tetromino[2][1][2] = 1;
-       tetromino[2][3][2] = 1;
+        tetromino[2][2][2] = 1;
+        tetromino[2][0][2] = 1;
+        tetromino[2][1][2] = 1;
+        tetromino[2][3][2] = 1;
 
-       /*
-       0 0 0 0 0
-       0 0 0 0 0
-       0 1 1 1 1
-       0 0 0 0 0
-       0 0 0 0 0
-       */
-       tetromino[3][2][2] = 1;
-       tetromino[3][2][1] = 1;
-       tetromino[3][2][3] = 1;
-       tetromino[3][2][4] = 1;
+        /*
+        0 0 0 0 0
+        0 0 0 0 0
+        0 1 1 1 1
+        0 0 0 0 0
+        0 0 0 0 0
+        */
+        tetromino[3][2][2] = 1;
+        tetromino[3][2][1] = 1;
+        tetromino[3][2][3] = 1;
+        tetromino[3][2][4] = 1;
 
-       break;
+        break;
     }
     case Tetromino::Type::J: {
         /*
@@ -87,7 +87,7 @@ type(type)
         tetromino[0][1][2] = 1;
         tetromino[0][1][1] = 1;
         tetromino[0][3][2] = 1;
-        
+
         /*
         0 0 0 0 0
         0 0 0 1 0
@@ -386,25 +386,30 @@ type(type)
     toDefaultPos();
 
     rotation_index = 0;
-    valid = true;
+    valid          = true;
 }
+
 Tetromino::Tetromino(Tetromino const& obj) :
-tetromino(obj.tetromino),
-type(obj.type),
-pos(obj.pos),
-rotation_index(obj.rotation_index),
-valid(obj.valid)
+    tetromino(obj.tetromino),
+    type(obj.type),
+    pos(obj.pos),
+    rotation_index(obj.rotation_index),
+    valid(obj.valid)
 {
 }
 
-Tetromino& Tetromino::operator=(Tetromino const& obj) {
-    tetromino = obj.tetromino;
-    type = obj.type;
-    pos = obj.pos;
+Tetromino& Tetromino::operator=(Tetromino const& obj)
+{
+    tetromino      = obj.tetromino;
+    type           = obj.type;
+    pos            = obj.pos;
     rotation_index = obj.rotation_index;
-    valid = obj.valid;
+    valid          = obj.valid;
+    return *this;
 }
-bool operator==(Tetromino const& lhs, Tetromino const& rhs) {
+
+bool operator==(Tetromino const& lhs, Tetromino const& rhs)
+{
     return (
         lhs.type == rhs.type &&
         lhs.pos == rhs.pos &&
@@ -412,21 +417,28 @@ bool operator==(Tetromino const& lhs, Tetromino const& rhs) {
     );
 }
 
-Array5x5 const& Tetromino::getCurrentRotation() const {
+Array5x5 const& Tetromino::getCurrentRotation() const
+{
     return tetromino[rotation_index];
 }
-void Tetromino::toDefaultRotation() {
+
+void Tetromino::toDefaultRotation()
+{
     rotation_index = 0;
 }
 
-Tetromino::Type const& Tetromino::getType() const {
+Tetromino::Type const& Tetromino::getType() const
+{
     return type;
 }
-void Tetromino::setType(Tetromino::Type const& type) {
+
+void Tetromino::setType(Tetromino::Type const& type)
+{
     this->type = type;
 }
 
-void Tetromino::toDefaultPos() {
+void Tetromino::toDefaultPos()
+{
     switch (type) {
     case Tetromino::Type::I: {
         pos.x = 5;
@@ -465,41 +477,56 @@ void Tetromino::toDefaultPos() {
     }
     }
 }
-sf::Vector2i const& Tetromino::getPos() const {
+
+sf::Vector2i const& Tetromino::getPos() const
+{
     return pos;
 }
-void Tetromino::setPos(int const& x, int const& y) {
-    pos.x = x; 
+
+void Tetromino::setPos(int const& x, int const& y)
+{
+    pos.x = x;
     pos.y = y;
 }
 
-bool Tetromino::isValid() const {
+bool Tetromino::isValid() const
+{
     return valid;
 }
 
-void Tetromino::moveDown() {
+void Tetromino::moveDown()
+{
     pos.y++;
 }
-void Tetromino::moveRight() {
+
+void Tetromino::moveRight()
+{
     pos.x++;
 }
-void Tetromino::moveLeft() {
+
+void Tetromino::moveLeft()
+{
     if (pos.x > 0) {
         pos.x--;
     }
 }
-void Tetromino::moveUp() {
+
+void Tetromino::moveUp()
+{
     if (pos.y > 0) {
         pos.y--;
     }
 }
 
-void Tetromino::rotateRight() {
+void Tetromino::rotateRight()
+{
     if (--rotation_index < 0) {
         rotation_index = 3;
     }
 }
-void Tetromino::rotateLeft() {
+
+void Tetromino::rotateLeft()
+{
     if (++rotation_index > 3) {
         rotation_index = 0;
     }
