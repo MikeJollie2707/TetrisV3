@@ -1,7 +1,6 @@
 #ifndef TETRISV3_UTIL_HPP
 #define TETRISV3_UTIL_HPP
 
-#include <iostream> // Debug purpose
 
 enum Direction {
     NONE,

@@ -1,18 +1,19 @@
 #include "tetris.hpp"
+#include <iostream>
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(270, 315), "Tetris");
+    sf::RenderWindow window(sf::VideoMode({840, 840}), "Tetris");
     try {
         Tetris tetris(window);
         tetris.setInitSpeed(0.5f)
-              .setGrid(15)
-              .setOutlineThickness(1);
-        
+                .setGrid(30)
+                .setOutlineThickness(3);
+
         tetris.setDebug(false)
-              .setHardDrop(true)
-              .setHint(true)
-              .setHold(true);
+                .setHardDrop(true)
+                .setHint(true)
+                .setHold(true);
 
         int final_score = tetris.run();
         std::cout << "Final score: " << final_score << '\n';
@@ -24,7 +25,6 @@ int main()
     /*
     TODO:
     - AI
-    - Music
     */
 
     return 0;

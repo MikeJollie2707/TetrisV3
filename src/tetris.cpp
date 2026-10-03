@@ -2,6 +2,10 @@
 #define TETRISV3_TETRIS_CPP
 
 #include "tetris.hpp"
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <optional>
+#include <iostream>
 
 Tetris::Tetris(sf::RenderWindow& window) :
 window(window),
@@ -12,9 +16,11 @@ hold_lock(0),
 movable(false),
 is_pause(true),
 score(0),
-tick(1.0f)
+tick(1.0f),
+rng(rd())
 {
-    srand(time(NULL));
+    // srand(time(NULL));
+    
 
     // Init board
     for (auto& i : board)
@@ -48,7 +54,7 @@ tick(1.0f)
     // Window size constraint
     sf::Vector2u window_size = window.getSize();
     if (!(window_size.x >= 270 && window_size.y >= 315)) {
-        window.create(sf::VideoMode(270, 315), "Tetris");
+        window.create(sf::VideoMode({270, 315}), "Tetris");
     }
 
     // Default settings
@@ -72,9 +78,15 @@ int Tetris::genRandomTetromino() {
     // If the first roll has the same number as previous piece OR 8,
     // it'll do a reroll. The reroll is final.
 
-    int value = rand() % 8;
+    std::uniform_int_distribution<int> dice8(0, 7);
+    std::uniform_int_distribution<int> dice7(0, 6);
+
+    //int value = rand() % 8;
+    int value = dice8(this->rng);
+
     if (static_cast<int>(tetrominoes[0].getType()) == value || value == 7) {
-        value = rand() % 7;
+        //value = rand() % 7;
+        value = dice7(this->rng);
     }
 
     return value;
@@ -304,10 +316,9 @@ void Tetris::updateBoard() {
                 }
             }
         }
-        clearLines();
     }
 }
-void Tetris::clearLines() {
+int Tetris::clearLines() {
     int rows[4]; // maximum clear lines in one go is 4
     int index = 0;
 
@@ -333,8 +344,7 @@ void Tetris::clearLines() {
         }
     }
 
-    incSpeed(index);
-    incScore(index);
+    return index;
 }
 void Tetris::incSpeed(int lines) {
     if (lines > 0 && tick > 0.1)
@@ -464,41 +474,39 @@ void Tetris::render() {
     window.display();
 }
 void Tetris::processEvent(sf::Event event) {
-    sf::Event::EventType type = event.type;
-
-    if (type == sf::Event::Closed) {
+    if (event.is<sf::Event::Closed>()) {
         window.close();
         movable = false;
     }
-    else if (type == sf::Event::KeyPressed) {
+    else if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>()) {
         //...
-        auto key = event.key.code;
+        auto key = keyPressed->scancode;
         switch (key) {
-        case sf::Keyboard::Escape: {
+        case sf::Keyboard::Scancode::Escape: {
             window.close();
             break;
         }
-        case sf::Keyboard::D: {
+        case sf::Keyboard::Scancode::D: {
             if (!is_pause)
                 moveRight(tetrominoes[0]);
             break;
         }
-        case sf::Keyboard::A: {
+        case sf::Keyboard::Scancode::A: {
             if (!is_pause)
                 moveLeft(tetrominoes[0]);
             break;
         }
-        case sf::Keyboard::Left: {
+        case sf::Keyboard::Scancode::Left: {
             if (!is_pause)
                 rotateLeft(tetrominoes[0]);
             break;
         }
-        case sf::Keyboard::Right: {
+        case sf::Keyboard::Scancode::Right: {
             if (!is_pause)
                 rotateRight(tetrominoes[0]);
             break;
         }
-        case sf::Keyboard::Space: {
+        case sf::Keyboard::Scancode::Space: {
             if (settings.hard_drop && !is_pause) {
                 while (isMovable(tetrominoes[0]))
                     moveDown(tetrominoes[0]);
@@ -507,7 +515,7 @@ void Tetris::processEvent(sf::Event event) {
             }
             break;
         }
-        case sf::Keyboard::C: {
+        case sf::Keyboard::Scancode::C: {
             if (settings.hold && !is_pause && hold_lock == 0) {
                 /*
                 if hold.valid
@@ -544,9 +552,12 @@ void Tetris::processEvent(sf::Event event) {
             }
             break;
         }
-        case sf::Keyboard::P: {
+        case sf::Keyboard::Scancode::P: {
             is_pause = !is_pause;
             break;
+        }
+        default: {
+            break; 
         }
         
         }
@@ -557,20 +568,25 @@ void Tetris::processEvent(sf::Event event) {
 }
 
 void Tetris::playSound(std::string const& sound_name) {
-    if (!buffer.loadFromFile("../music/" + sound_name)) {
+    if (!buffer.loadFromFile("./music/" + sound_name)) {
         std::cerr << "Cannot load from " + sound_name;
     }
     else {
-        sound.setBuffer(buffer);
-        sound.play();
+        if (!sound) {
+            sound.emplace(buffer);
+        }
+        else {
+            sound->setBuffer(buffer);
+        }
+        sound->play();
     }
 }
 void Tetris::playMusic(std::string const& music_name) {
-    if (!theme.openFromFile("../music/" + music_name)) {
+    if (!theme.openFromFile("./music/" + music_name)) {
         std::cerr << "Cannot load from " + music_name;
     }
     else {
-        theme.setLoop(true);
+        theme.setLooping(true);
         theme.play();
     }
 }
@@ -620,7 +636,7 @@ Tetris& Tetris::setOutlineThickness(int outline) {
 }
 
 int Tetris::run() {
-    //playMusic("Tetris.ogg");
+    playMusic("Tetris.ogg");
 
     while (window.isOpen()) {
         sf::Time elapsed = render_clock.getElapsedTime();
@@ -652,10 +668,9 @@ int Tetris::run() {
         is_hard_drop = false;
 
         while (elapsed < dt) {
-            sf::Event event;
-            if (window.pollEvent(event)) {
+            if (const std::optional event = window.pollEvent()) {
                 // we do some logic here
-                processEvent(event);
+                processEvent(event.value());
             }
 
             elapsed = render_clock.getElapsedTime();    
@@ -679,6 +694,13 @@ int Tetris::run() {
         if (!movable) {
             playSound("fall.wav");
             updateBoard();
+            int lines = clearLines();
+
+            if (lines > 0) {
+                incSpeed(lines);
+                incScore(lines);
+            }
+
 
             if (settings.hold) {
                 hold_lock = 0;

@@ -2,13 +2,11 @@
 #define TETRISV3_TETRIS_HPP
 
 #include "tetromino.hpp"
-#include "util.hpp"
 
+#include <optional>
 #include <vector>
-#include <stack>
 #include <ctime>
-#include <stdexcept>
-#include <algorithm>
+#include <random>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -53,6 +51,9 @@ protected:
     tetrominoes[3+] is next.
     */
     std::vector<Tetromino> tetrominoes;
+
+    std::random_device rd;
+    std::mt19937 rng;
     /*
     The game tick.
 
@@ -98,7 +99,7 @@ protected:
     sf::Clock tick_clock;
     sf::Time dt = sf::seconds(1.0f / 60.0f);
 
-    sf::Sound sound;
+    std::optional<sf::Sound> sound;
     sf::SoundBuffer buffer;
     sf::Music theme;
 
@@ -158,7 +159,7 @@ protected:
     Clear all the full lines.
     Also increases tick speed.
     */
-    void clearLines();
+    int clearLines();
     void incSpeed(int lines);
     virtual void incScore(int lines);
 

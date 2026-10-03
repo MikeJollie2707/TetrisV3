@@ -2,19 +2,43 @@
 
 Previous versions are not well-coded for extensive uses, so this version attempts to fix that.
 
-The final goal of this version is to implement an AI to play Tetris.
+## Demo
 
-## Features
+![demo](demo.mp4)
 
-- Normal Tetris
-- Scoring (in terminal)
-- Wall kicking
-- Tetromino hinting
-- Settings config through setters
-- Hold tetromino
-- Sounds & music
+## Dependencies
+
+C++17 is required.
+
+SFML 3.x is required (tested with 3.1). SFML itself requires some system libraries, which are detailed in its tutorial: [here](https://www.sfml-dev.org/tutorials/3.1/getting-started/cmake/#requirements), [here](https://www.sfml-dev.org/tutorials/3.1/getting-started/linux/#installing-sfml), and [here (Windows)](https://www.sfml-dev.org/tutorials/3.1/getting-started/visual-studio/).
+
+For Debian/Ubuntu, these are dependencies:
+
+```sh
+sudo apt install \
+    libxrandr-dev \
+    libxcursor-dev \
+    libxi-dev \
+    libudev-dev \
+    libfreetype-dev \
+    libflac-dev \
+    libvorbis-dev \
+    libgl1-mesa-dev \
+    libegl1-mesa-dev \
+    libfreetype-dev
+```
+
+From personal experience, you also need `libmbedtls-dev`, `libssh2-1-dev`, and `libharfbuzz-dev`.
+
+## Run
+
+```sh
+cmake -B build
+cmake --build build
+```
+
+Alternatively, if you use CMakeTools extension in VSCode, you can use it to build.
 
 ## TODO
 
-- [ ] AI
 - [x] Music
